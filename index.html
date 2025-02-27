@@ -336,7 +336,6 @@
             <label for="baseDate">基准排班日期(白班)：</label>
             <input type="date" id="baseDate">
             <button class="settings-button" onclick="saveBaseDate()">保存设置</button>
-            <button class="settings-button" onclick="resetBaseDate()">恢复默认</button>
             <!-- 显示已保存的基准日期 -->
             <div class="saved-date">当前基准日期：<span id="savedDateDisplay">未设置</span></div>
         </div>
@@ -346,10 +345,7 @@
     <button class="floating-button" onclick="goToToday()">🐾 回到今天</button>
 
     <script>
-        let baseDate = (() => {
-            const saved = localStorage.getItem('baseDate');
-            return saved ? new Date(saved) : new Date();
-        })();
+        let baseDate = new Date('2025-02-27T00:00:00'); // 默认基准日期设置为2025年2月27日
 
         const shifts = ['bai', 'ye', 'xia', 'xiu'];
         const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
@@ -362,7 +358,7 @@
                 const date = new Date(savedDate);
                 savedDateDisplay.textContent = date.toLocaleDateString();
             } else {
-                savedDateDisplay.textContent = '未设置';
+                savedDateDisplay.textContent = '2025年2月27日'; // 默认显示
             }
         }
 
@@ -374,14 +370,6 @@
                 generateCalendar();
                 updateSavedDateDisplay();
             }
-        }
-
-        function resetBaseDate() {
-            localStorage.removeItem('baseDate');
-            baseDate = new Date();
-            document.getElementById('baseDate').value = '';
-            generateCalendar();
-            updateSavedDateDisplay();
         }
 
         function goToToday() {
@@ -396,6 +384,8 @@
             if (savedDate) {
                 const date = new Date(savedDate);
                 document.getElementById('baseDate').value = date.toISOString().split('T');
+            } else {
+                document.getElementById('baseDate').value = '2025-02-27'; // 默认值
             }
             initDateSelector();
             generateCalendar();
