@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐱 娜娜的智能排班表 🐾</title>
+    <style>
+        /* 基础样式 */
+        :root {
+            --primary-color: #ff7eb9; /* 粉色 */
+            --secondary-color: #d5a6ff; /* 紫色 */
+            --background-color: #fff0f5; /* 浅粉色背景 */
+        }
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            background: var(--background-color);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='极狐100' height='100' viewBox='0 0 100 100'%3E%3Ctext x='50%' y='50%' font-size='20极狐fill='%23ff7eb9' text-anchor='middle' dominant-baseline='middle'%3E🐾%3C/text%3E%3C/svg%3E");
+            background-size: 50px;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: '🐱';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 80px;
+            color: var(--primary-color);
+            opacity: 0.2;
+            transform: rotate(30deg);
+        }
+        .header h1 {
+            font-size: 28px;
+            text-align: center;
+            margin: 10px 0;
+            color极狐var(--primary-color);
+        }
+
+        /* 设置面板 */
+        .settings-panel {
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff5f9;
+            border-radius: 15px;
+            border: 1px solid #ffd1dc;
+        }
+        .settings-panel label {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        .settings-panel input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ffd1dc;
+            border-radius: 10px;
+            margin-right: 10px;
+            width: 100%;
+            max-width: 180px;
+            background: #fff0f5;
+        }
+        .settings-button {
+            padding: 8px 15px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 120px;
+        }
+        .settings-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(255,126,185,0.3);
+        }
+
+        /* 日期选择器 */
+        .date-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 8px 15px;
+            border: 1px solid #ffd1dc;
+            border-radius: 10px;
+            background: #fff5f9;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 150px;
+            color: var(--primary-color);
+        }
+        select:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(255,126,185,0.2);
+        }
+
+        /* 日历外框 */
+        .calendar-wrapper {
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            padding: 10px;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            padding: 10px;
+            background: white;
+        }
+        .day {
+            background: #fff5f9;
+            border: 1px solid #ffd1dc;
+            border-radius: 10px;
+            padding: 10px;
+            min-height: 80px;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .day:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255,126,185,0.2);
+        }
+        .today {
+            position: relative;
+            border: 3px solid #ff6b6b;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: white;
+            animation: todayGlow 1.5s infinite alternate ease-in-out;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+        @keyframes todayGlow {
+            from { box-shadow: 0 0 15px rgba(255,107,107,0.5); }
+            to { box-shadow: 0 0 30px rgba(255,107,107,0.9); }
+        }
+        .today::before {
+            content: '🐾';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            border-radius: 12px;
+            z-index: -1;
+            opacity: 0.8;
+        }
+        .shift-bai { background: #ffebeb; }
+        .shift-ye { background: #e6ffe6; }
+        .shift-xia { background: #e6f3ff; }
+        .shift-xiu { background: #fff7e6; }
+        .selected-day {
+            box-shadow: 0 0 0 2px #ffd700;
+            z-index: 1;
+        }
+        .empty-day {
+            visibility: hidden;
+        }
+
+        /* 统计区域 */
+        .stats-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff5f9;
+            border-radius: 15px;
+            border: 1px solid #ffd1dc;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .stats-item {
+            padding: 8px 15px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* 浮动按钮 */
+        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 极狐20px;
+            padding: 8px 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            z-index: 1000;
+            font-size: 14px;
+            width: auto;
+            min-width: 100px;
+        }
+        .floating-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            .settings-panel {
+                padding: 10px;
+            }
+            .settings-panel input[type="date"] {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .settings-button {
+                width: 100%;
+                max-width: none;
+            }
+            .date-selector {
+                flex-direction: column;
+            }
+            select {
+                max-width: none;
+            }
+            .calendar {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 5px;
+            }
+            .day {
+                min-height: 60px;
+                padding: 5px;
+                font-size: 12px;
+            }
+            .day-number {
+                font-size: 10px;
+            }
+            .shift-mark {
+                font-size: 10px;
+            }
+            .floating-button {
+                bottom: 10px;
+                right: 10px;
+                font-size: 12px;
+                padding: 6px 12px;
+                min-width: 80px;
+            }
+        }
+
+        /* 基准排班设置系统 */
+        .base-settings {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff5f9;
+            border-radius: 15px;
+            border: 1px solid #ffd1dc;
+        }
+        .saved-date {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐱 娜娜的智能排班表 🐾</h1>
+        </div>
+        
+        <div class="date-selector">
+            <select id="yearSelect"></select>
+            <select id="monthSelect"></select>
+        </div>
+
+        <!-- 表格外框 -->
+        <div class="calendar-wrapper">
+            <!-- 星期显示行 -->
+            <div class="weekdays">
+                <div>周日</div>
+                <div>周一</div>
+                <div>周二</div>
+                <div>周三</div>
+                <div>周四</div>
+                <div>周五</div>
+                <div>周六</div>
+            </div>
+
+            <!-- 日历内容 -->
+            <div id="calendar" class="calendar"></div>
+        </div>
+
+        <!-- 统计区域 -->
+        <div class="stats-panel">
+            <div class="stats-item">🐱 白班: <span id="baiCount">0</span> 天</div>
+            <div class="stats-item">🐾 夜班: <span id="yeCount">0</span> 天</div>
+            <div class="stats-item">📅 本月共计: <span id="totalCount">0</span> 天班</div>
+        </div>
+
+        <!-- 基准排班设置系统 -->
+        <div class="base-settings">
+            <label for="baseDate">基准排班日期(白班)：</label>
+            <input type="date" id="baseDate">
+            <button class="settings-button" onclick="saveBaseDate()">保存设置</button>
+            <button class="settings-button" onclick="resetBaseDate()">恢复默认</button>
+            <!-- 显示已保存的基准日期 -->
+            <div class="saved-date">当前基准日期：<span id="savedDateDisplay">未设置</span></div>
+        </div>
+    </div>
+
+    <!-- 浮动按钮 -->
+    <button class="floating-button" onclick="goToToday()">🐾 回到今天</button>
+
+    <script>
+        let baseDate = (() => {
+            const saved = localStorage.getItem('baseDate');
+            return saved ? new Date(saved) : new Date();
+        })();
+
+        const shifts = ['bai', 'ye', 'xia', 'xiu'];
+        const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+
+        // 更新已保存的基准日期显示
+        function updateSavedDateDisplay() {
+            const savedDate = localStorage.getItem('baseDate');
+            const savedDateDisplay = document.getElementById('savedDateDisplay');
+            if (savedDate) {
+                const date = new Date(savedDate);
+                savedDateDisplay.textContent = date.toLocaleDateString();
+            } else {
+                savedDateDisplay.textContent = '未设置';
+            }
+        }
+
+        function saveBaseDate() {
+            const input = document.getElementById('baseDate');
+            if (input.value) {
+                baseDate = new Date(input.value + 'T00:00:00');
+                localStorage.setItem('baseDate', baseDate.toISOString());
+                generateCalendar();
+                updateSavedDateDisplay();
+            }
+        }
+
+        function resetBaseDate() {
+            localStorage.removeItem('baseDate');
+            baseDate = new Date();
+            document.getElementById('baseDate').value = '';
+            generateCalendar();
+            updateSavedDateDisplay();
+        }
+
+        function goToToday() {
+            const today = new Date();
+            document.getElementById('yearSelect').value = today.getFullYear();
+            document.getElementById('monthSelect').value = today.getMonth() + 1;
+            generateCalendar();
+        }
+
+        window.onload = function() {
+            const savedDate = localStorage.getItem('baseDate');
+            if (savedDate) {
+                const date = new Date(savedDate);
+                document.getElementById('baseDate').value = date.toISOString().split('T');
+            }
+            initDateSelector();
+            generateCalendar();
+            updateSavedDateDisplay();
+        }
+
+        function initDateSelector() {
+            const yearSelect = document.getElementById('yearSelect');
+            const monthSelect = document.getElementById('monthSelect');
+
+            // 生成年份选项
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear - 30; y <= currentYear + 30; y++) {
+                yearSelect.add(new Option(y + '年', y));
+            }
+
+            // 生成月份选项
+            for (let m = 1; m <= 12; m++) {
+                monthSelect.add(new Option(m + '月', m));
+            }
+
+            // 设置默认选中
+            const today = new Date();
+            yearSelect.value = today.getFullYear();
+            monthSelect.value = today.getMonth() + 1;
+
+            yearSelect.addEventListener('change', () => {
+                generateCalendar();
+            });
+            monthSelect.addEventListener('change', () => {
+                generateCalendar();
+            });
+        }
+
+        function generateCalendar() {
+            const calendar = document.getElementById('calendar');
+            const year = parseInt(document.getElementById('yearSelect').value);
+            const month = parseInt(document.getElementById('monthSelect').value) - 1;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startDay = firstDay.getDay(); // 获取本月第一天是星期几
+
+            // 统计各班次天数
+            const stats = { bai: 0, ye: 0, xia: 0, xiu: 0 };
+
+            calendar.innerHTML = '';
+            let date = 1;
+
+            for (let i = 0; i < 6; i++) { // 最多6行
+                for (let j = 0; j < 7; j++) { // 固定7列
+                    const cell = document.createElement('div');
+                    const currentDate = new Date(year, month, date);
+
+                    if (i === 0 && j < startDay || date > daysInMonth) {
+                        cell.className = 'day empty-day'; // 隐藏空白日期格
+                    } else {
+                        const diffDays = Math.floor((currentDate - baseDate) / 86400000);
+                        const shiftIndex = (diffDays % 4 + 4) % 4;
+                        const shift = shifts[shiftIndex];
+
+                        cell.className = `day shift-${shift}`;
+                        
+                        if (currentDate.toDateString() === new Date().toDateString()) {
+                            cell.classList.add('today');
+                        }
+
+                        cell.innerHTML = `
+                            <div class="day-number" style="font-size: 16px; font-weight: bold;">${date}</div>
+                            <div class="shift-mark" style="font-size: 14px; margin-top: 5px;">
+                                ${{
+                                    bai: '白',
+                                    ye: '夜', 
+                                    xia: '下夜',
+                                    xiu: '休'
+                                }[shift]}
+                            </div>
+                        `;
+
+                        // 统计班次天数
+                        stats[shift]++;
+                        date++;
+                    }
+                    calendar.appendChild(cell);
+                }
+            }
+
+            // 更新统计区域
+            document.getElementById('baiCount').textContent = stats.bai;
+            document.getElementById('yeCount').textContent = stats.ye;
+            document.getElementById('totalCount').textContent = stats.bai + stats.ye * 2;
+        }
+    </script>
+</body>
+</html>
