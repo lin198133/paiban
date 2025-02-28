@@ -28,7 +28,7 @@
             margin: 20px auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 5px 25px rgba(极狐0,0,0.1);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
             padding: 20px;
             position: relative;
             overflow: hidden;
@@ -299,6 +299,7 @@
         .arrow-container {
             display: flex;
             justify-content: space-between;
+            align-items: center; /* 垂直居中 */
             margin-top: 10px;
         }
         .arrow {
@@ -310,6 +311,11 @@
         .arrow:hover {
             transform: scale(1.2);
             color: var(--secondary-color);
+        }
+        .current-month {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
         }
     </style>
 </head>
@@ -344,6 +350,7 @@
         <!-- 箭头容器 -->
         <div class="arrow-container">
             <div class="arrow" onclick="prevMonth()">◀️</div>
+            <div class="current-month" id="currentMonth"></div>
             <div class="arrow" onclick="nextMonth()">▶️</div>
         </div>
 
@@ -385,6 +392,14 @@
             }
         }
 
+        // 更新当前年月显示
+        function updateCurrentMonthDisplay() {
+            const year = parseInt(document.getElementById('yearSelect').value);
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const currentMonthDisplay = document.getElementById('currentMonth');
+            currentMonthDisplay.textContent = `${year}年${month}月`;
+        }
+
         function saveBaseDate() {
             const input = document.getElementById('baseDate');
             if (input.value) {
@@ -400,19 +415,21 @@
             document.getElementById('yearSelect').value = today.getFullYear();
             document.getElementById('monthSelect').value = today.getMonth() + 1;
             generateCalendar();
+            updateCurrentMonthDisplay();
         }
 
         window.onload = function() {
             const savedDate = localStorage.getItem('baseDate');
             if (savedDate) {
                 const date = new Date(savedDate);
-                document.getElementById('baseDate').value = date.toISOString().split('T');
+                document.getElementById('baseDate').value = date.toISOString().split('T')[0];
             } else {
                 document.getElementById('baseDate').value = '2025-02-27'; // 默认值
             }
             initDateSelector();
             generateCalendar();
             updateSavedDateDisplay();
+            updateCurrentMonthDisplay();
         }
 
         function initDateSelector() {
@@ -437,9 +454,11 @@
 
             yearSelect.addEventListener('change', () => {
                 generateCalendar();
+                updateCurrentMonthDisplay();
             });
             monthSelect.addEventListener('change', () => {
                 generateCalendar();
+                updateCurrentMonthDisplay();
             });
         }
 
@@ -514,6 +533,7 @@
             }
             monthSelect.value = month;
             generateCalendar();
+            updateCurrentMonthDisplay();
         }
 
         // 切换下个月
@@ -527,6 +547,7 @@
             }
             monthSelect.value = month;
             generateCalendar();
+            updateCurrentMonthDisplay();
         }
     </script>
 </body>
