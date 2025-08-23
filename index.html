@@ -307,6 +307,7 @@
             cursor: pointer;
             color: var(--primary-color);
             transition: transform 0.3s, color 0.3s;
+            user-select: none;
         }
         .arrow:hover {
             transform: scale(1.2);
@@ -317,12 +318,150 @@
             font-weight: bold;
             color: var(--primary-color);
         }
+        
+        /* 班型模式选择器 */
+        .shift-mode-selector {
+            margin: 15px 0;
+            padding: 10px;
+            background: #fff5f9;
+            border-radius: 15px;
+            border: 1px solid #ffd1dc;
+        }
+        .shift-mode-option {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            background: #fff0f5;
+            border: 1px solid #ffd1dc;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .shift-mode-option:hover {
+            background: #ffebf3;
+        }
+        .shift-mode-option.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* 自定义班型设置面板 */
+        .custom-shift-panel {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff5f9;
+            border-radius: 15px;
+            border: 1px solid #ffd1dc;
+            display: none;
+        }
+        .custom-shift-panel.active {
+            display: block;
+        }
+        .shift-input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .shift-input-group select {
+            max-width: 100px;
+            margin-right: 10px;
+        }
+        .shift-input-group .remove-shift {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .add-shift-button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 15px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        /* 提示信息 */
+        .info-message {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #e6f7ff;
+            border-radius: 8px;
+            border-left: 4px solid #1890ff;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        /* 基准日期设置区域 */
+        .base-date-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        /* 自定义模式基准日期设置 */
+        .custom-base-date-container {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fff0f5;
+            border-radius: 10px;
+            border: 1px dashed #ffd1dc;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🐱 娜娜的智能排班表 🐾</h1>
+        </div>
+        
+        <!-- 班型模式选择器 -->
+        <div class="shift-mode-selector">
+            <label>班型模式：</label>
+            <div id="mode-default" class="shift-mode-option active" onclick="changeShiftMode('default')">白班/夜班/下夜/正休</div>
+            <div id="mode-three" class="shift-mode-option" onclick="changeShiftMode('three')">白班/夜班/下夜</div>
+            <div id="mode-two" class="shift-mode-option" onclick="changeShiftMode('two')">白班/正休</div>
+            <div id="mode-custom" class="shift-mode-option" onclick="changeShiftMode('custom')">自定义模式</div>
+        </div>
+        
+        <!-- 自定义班型设置面板 -->
+        <div id="customShiftPanel" class="custom-shift-panel">
+            <h3>自定义班型设置</h3>
+            <p>设置连续几天的班型循环：</p>
+            <div id="customShiftInputs">
+                <div class="shift-input-group">
+                    <select class="shift-type">
+                        <option value="bai">白班</option>
+                        <option value="ye">夜班</option>
+                        <option value="xia">下夜</option>
+                        <option value="xiu">正休</option>
+                    </select>
+                    <button class="remove-shift" onclick="removeShiftInput(this)">×</button>
+                </div>
+            </div>
+            <button class="add-shift-button" onclick="addShiftInput()">+ 添加一天</button>
+            
+            <!-- 自定义模式基准日期设置 -->
+            <div class="custom-base-date-container">
+                <label for="customBaseDate">自定义模式基准日期：</label>
+                <input type="date" id="customBaseDate">
+                <button class="settings-button" onclick="saveCustomBaseDate()">保存基准日期</button>
+                <div class="saved-date">当前基准日期：<span id="customSavedDateDisplay">未设置</span></div>
+                <div class="info-message">
+                    自定义模式将以此日期为基准进行推算，可以设置任意班型作为基准。
+                </div>
+            </div>
+            
+            <button class="settings-button" onclick="saveCustomShifts()" style="margin-top: 15px;">保存自定义班型</button>
         </div>
         
         <div class="date-selector">
@@ -363,11 +502,16 @@
 
         <!-- 基准排班设置系统 -->
         <div class="base-settings">
-            <label for="baseDate">基准排班日期(白班)：</label>
-            <input type="date" id="baseDate">
-            <button class="settings-button" onclick="saveBaseDate()">保存设置</button>
+            <div class="base-date-container">
+                <label for="baseDate">默认模式基准日期(白班)：</label>
+                <input type="date" id="baseDate">
+                <button class="settings-button" onclick="saveBaseDate()">保存设置</button>
+            </div>
             <!-- 显示已保存的基准日期 -->
             <div class="saved-date">当前基准日期：<span id="savedDateDisplay">未设置</span></div>
+            <div class="info-message">
+                默认班型模式将以此日期为白班基准进行推算。
+            </div>
         </div>
     </div>
 
@@ -376,9 +520,161 @@
 
     <script>
         let baseDate = new Date('2025-02-27T00:00:00'); // 默认基准日期设置为2025年2月27日
+        let customBaseDate = new Date('2025-02-27T00:00:00'); // 自定义模式基准日期
+        let shiftMode = 'default'; // 默认班型模式
+        let customShifts = ['bai', 'ye', 'xia', 'xiu']; // 默认自定义班型
 
-        const shifts = ['bai', 'ye', 'xia', 'xiu'];
+        // 班型定义
+        const shiftModes = {
+            default: {
+                shifts: ['bai', 'ye', 'xia', 'xiu'],
+                labels: {bai: '白', ye: '夜', xia: '下夜', xiu: '休'},
+                cycle: 4,
+                baseDate: baseDate
+            },
+            three: {
+                shifts: ['bai', 'ye', 'xia'],
+                labels: {bai: '白', ye: '夜', xia: '下夜'},
+                cycle: 3,
+                baseDate: baseDate
+            },
+            two: {
+                shifts: ['bai', 'xiu'],
+                labels: {bai: '白', xiu: '休'},
+                cycle: 2,
+                baseDate: baseDate
+            },
+            custom: {
+                shifts: customShifts,
+                labels: {bai: '白', ye: '夜', xia: '下夜', xiu: '休'},
+                cycle: customShifts.length,
+                baseDate: customBaseDate
+            }
+        };
+
         const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+
+        // 切换班型模式
+        function changeShiftMode(mode) {
+            shiftMode = mode;
+            // 保存选择的模式到本地存储
+            localStorage.setItem('shiftMode', mode);
+            
+            // 更新UI选中状态
+            document.querySelectorAll('.shift-mode-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.getElementById(`mode-${mode}`).classList.add('active');
+            
+            // 显示或隐藏自定义班型设置面板
+            const customPanel = document.getElementById('customShiftPanel');
+            if (mode === 'custom') {
+                customPanel.classList.add('active');
+                // 加载保存的自定义班型
+                loadCustomShifts();
+                // 更新自定义基准日期显示
+                updateCustomSavedDateDisplay();
+            } else {
+                customPanel.classList.remove('active');
+            }
+            
+            // 重新生成日历
+            generateCalendar();
+        }
+
+        // 添加班型输入框
+        function addShiftInput() {
+            const inputsContainer = document.getElementById('customShiftInputs');
+            const newInput = document.createElement('div');
+            newInput.className = 'shift-input-group';
+            newInput.innerHTML = `
+                <select class="shift-type">
+                    <option value="bai">白班</option>
+                    <option value="ye">夜班</option>
+                    <option value="xia">下夜</option>
+                    <option value="xiu">正休</option>
+                </select>
+                <button class="remove-shift" onclick="removeShiftInput(this)">×</button>
+            `;
+            inputsContainer.appendChild(newInput);
+        }
+
+        // 移除班型输入框
+        function removeShiftInput(button) {
+            const inputsContainer = document.getElementById('customShiftInputs');
+            if (inputsContainer.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        // 保存自定义班型
+        function saveCustomShifts() {
+            const shiftInputs = document.querySelectorAll('.shift-type');
+            customShifts = Array.from(shiftInputs).map(input => input.value);
+            
+            // 更新班型模式
+            shiftModes.custom.shifts = customShifts;
+            shiftModes.custom.cycle = customShifts.length;
+            
+            // 保存到本地存储
+            localStorage.setItem('customShifts', JSON.stringify(customShifts));
+            
+            // 重新生成日历
+            generateCalendar();
+            
+            alert('自定义班型已保存！');
+        }
+
+        // 保存自定义模式基准日期
+        function saveCustomBaseDate() {
+            const input = document.getElementById('customBaseDate');
+            if (input.value) {
+                customBaseDate = new Date(input.value + 'T00:00:00');
+                shiftModes.custom.baseDate = customBaseDate;
+                localStorage.setItem('customBaseDate', customBaseDate.toISOString());
+                
+                generateCalendar();
+                updateCustomSavedDateDisplay();
+                alert('自定义模式基准日期已保存！');
+            }
+        }
+
+        // 加载自定义班型
+        function loadCustomShifts() {
+            const savedShifts = localStorage.getItem('customShifts');
+            if (savedShifts) {
+                customShifts = JSON.parse(savedShifts);
+                shiftModes.custom.shifts = customShifts;
+                shiftModes.custom.cycle = customShifts.length;
+            }
+            
+            // 更新输入框
+            const inputsContainer = document.getElementById('customShiftInputs');
+            inputsContainer.innerHTML = '';
+            
+            customShifts.forEach(shift => {
+                const newInput = document.createElement('div');
+                newInput.className = 'shift-input-group';
+                newInput.innerHTML = `
+                    <select class="shift-type">
+                        <option value="bai" ${shift === 'bai' ? 'selected' : ''}>白班</option>
+                        <option value="ye" ${shift === 'ye' ? 'selected' : ''}>夜班</option>
+                        <option value="xia" ${shift === 'xia' ? 'selected' : ''}>下夜</option>
+                        <option value="xiu" ${shift === 'xiu' ? 'selected' : ''}>正休</option>
+                    </select>
+                    <button class="remove-shift" onclick="removeShiftInput(this)">×</button>
+                `;
+                inputsContainer.appendChild(newInput);
+            });
+            
+            // 加载自定义基准日期
+            const savedCustomBaseDate = localStorage.getItem('customBaseDate');
+            if (savedCustomBaseDate) {
+                customBaseDate = new Date(savedCustomBaseDate);
+                shiftModes.custom.baseDate = customBaseDate;
+                document.getElementById('customBaseDate').value = customBaseDate.toISOString().split('T')[0];
+            }
+        }
 
         // 更新已保存的基准日期显示
         function updateSavedDateDisplay() {
@@ -392,6 +688,18 @@
             }
         }
 
+        // 更新自定义模式基准日期显示
+        function updateCustomSavedDateDisplay() {
+            const savedDate = localStorage.getItem('customBaseDate');
+            const savedDateDisplay = document.getElementById('customSavedDateDisplay');
+            if (savedDate) {
+                const date = new Date(savedDate);
+                savedDateDisplay.textContent = date.toLocaleDateString();
+            } else {
+                savedDateDisplay.textContent = '未设置';
+            }
+        }
+
         // 更新当前年月显示
         function updateCurrentMonthDisplay() {
             const year = parseInt(document.getElementById('yearSelect').value);
@@ -400,13 +708,34 @@
             currentMonthDisplay.textContent = `${year}年${month}月`;
         }
 
+        // 更新年月选择器以匹配基准日期
+        function updateDateSelectorsToBaseDate() {
+            const baseYear = baseDate.getFullYear();
+            const baseMonth = baseDate.getMonth() + 1;
+            
+            document.getElementById('yearSelect').value = baseYear;
+            document.getElementById('monthSelect').value = baseMonth;
+            
+            updateCurrentMonthDisplay();
+        }
+
         function saveBaseDate() {
             const input = document.getElementById('baseDate');
             if (input.value) {
                 baseDate = new Date(input.value + 'T00:00:00');
                 localStorage.setItem('baseDate', baseDate.toISOString());
+                
+                // 更新默认模式的基准日期
+                shiftModes.default.baseDate = baseDate;
+                shiftModes.three.baseDate = baseDate;
+                shiftModes.two.baseDate = baseDate;
+                
+                // 更新年月选择器以匹配基准日期
+                updateDateSelectorsToBaseDate();
+                
                 generateCalendar();
                 updateSavedDateDisplay();
+                alert('基准日期已保存！默认班型模式将以此日期为白班基准进行推算。');
             }
         }
 
@@ -421,15 +750,63 @@
         window.onload = function() {
             const savedDate = localStorage.getItem('baseDate');
             if (savedDate) {
-                const date = new Date(savedDate);
-                document.getElementById('baseDate').value = date.toISOString().split('T')[0];
+                baseDate = new Date(savedDate);
+                document.getElementById('baseDate').value = baseDate.toISOString().split('T')[0];
             } else {
                 document.getElementById('baseDate').value = '2025-02-27'; // 默认值
+                baseDate = new Date('2025-02-27T00:00:00');
             }
+            
+            // 更新默认模式的基准日期
+            shiftModes.default.baseDate = baseDate;
+            shiftModes.three.baseDate = baseDate;
+            shiftModes.two.baseDate = baseDate;
+            
+            // 加载保存的班型模式
+            const savedShiftMode = localStorage.getItem('shiftMode');
+            if (savedShiftMode) {
+                shiftMode = savedShiftMode;
+            }
+            
+            // 加载自定义班型
+            const savedShifts = localStorage.getItem('customShifts');
+            if (savedShifts) {
+                customShifts = JSON.parse(savedShifts);
+                shiftModes.custom.shifts = customShifts;
+                shiftModes.custom.cycle = customShifts.length;
+            }
+            
+            // 加载自定义基准日期
+            const savedCustomBaseDate = localStorage.getItem('customBaseDate');
+            if (savedCustomBaseDate) {
+                customBaseDate = new Date(savedCustomBaseDate);
+                shiftModes.custom.baseDate = customBaseDate;
+                document.getElementById('customBaseDate').value = customBaseDate.toISOString().split('T')[0];
+            }
+            
             initDateSelector();
+            
+            // 设置选中的班型模式
+            document.querySelectorAll('.shift-mode-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.getElementById(`mode-${shiftMode}`).classList.add('active');
+            
+            // 显示或隐藏自定义班型设置面板
+            const customPanel = document.getElementById('customShiftPanel');
+            if (shiftMode === 'custom') {
+                customPanel.classList.add('active');
+                loadCustomShifts();
+                updateCustomSavedDateDisplay();
+            } else {
+                customPanel.classList.remove('active');
+            }
+            
+            // 更新年月选择器以匹配基准日期
+            updateDateSelectorsToBaseDate();
+            
             generateCalendar();
             updateSavedDateDisplay();
-            updateCurrentMonthDisplay();
         }
 
         function initDateSelector() {
@@ -447,10 +824,9 @@
                 monthSelect.add(new Option(m + '月', m));
             }
 
-            // 设置默认选中
-            const today = new Date();
-            yearSelect.value = today.getFullYear();
-            monthSelect.value = today.getMonth() + 1;
+            // 设置默认选中为基准日期
+            yearSelect.value = baseDate.getFullYear();
+            monthSelect.value = baseDate.getMonth() + 1;
 
             yearSelect.addEventListener('change', () => {
                 generateCalendar();
@@ -472,6 +848,13 @@
             const daysInMonth = lastDay.getDate();
             const startDay = firstDay.getDay(); // 获取本月第一天是星期几
 
+            // 获取当前班型模式配置
+            const currentMode = shiftModes[shiftMode];
+            const shifts = currentMode.shifts;
+            const labels = currentMode.labels;
+            const cycle = currentMode.cycle;
+            const modeBaseDate = currentMode.baseDate;
+
             // 统计各班次天数
             const stats = { bai: 0, ye: 0, xia: 0, xiu: 0 };
 
@@ -486,8 +869,10 @@
                     if (i === 0 && j < startDay || date > daysInMonth) {
                         cell.className = 'day empty-day'; // 隐藏空白日期格
                     } else {
-                        const diffDays = Math.floor((currentDate - baseDate) / 86400000);
-                        const shiftIndex = (diffDays % 4 + 4) % 4;
+                        // 计算与基准日期的天数差
+                        const diffDays = Math.floor((currentDate - modeBaseDate) / 86400000);
+                        // 确保所有模式都以基准日期为开始
+                        const shiftIndex = (diffDays % cycle + cycle) % cycle;
                         const shift = shifts[shiftIndex];
 
                         cell.className = `day shift-${shift}`;
@@ -499,17 +884,14 @@
                         cell.innerHTML = `
                             <div class="day-number" style="font-size: 16px; font-weight: bold;">${date}</div>
                             <div class="shift-mark" style="font-size: 14px; margin-top: 5px;">
-                                ${{
-                                    bai: '白',
-                                    ye: '夜', 
-                                    xia: '下夜',
-                                    xiu: '休'
-                                }[shift]}
+                                ${labels[shift]}
                             </div>
                         `;
 
                         // 统计班次天数
-                        stats[shift]++;
+                        if (stats.hasOwnProperty(shift)) {
+                            stats[shift]++;
+                        }
                         date++;
                     }
                     calendar.appendChild(cell);
@@ -519,7 +901,19 @@
             // 更新统计区域
             document.getElementById('baiCount').textContent = stats.bai;
             document.getElementById('yeCount').textContent = stats.ye;
-            document.getElementById('totalCount').textContent = stats.bai + stats.ye * 2;
+            // 计算总班次天数（根据模式不同计算方式不同）
+            let totalCount = 0;
+            if (shiftMode === 'default') {
+                totalCount = stats.bai + stats.ye * 2;
+            } else if (shiftMode === 'three') {
+                totalCount = stats.bai + stats.ye * 2;
+            } else if (shiftMode === 'two') {
+                totalCount = stats.bai;
+            } else if (shiftMode === 'custom') {
+                // 自定义模式下，只计算白班和夜班（夜班算2天）
+                totalCount = stats.bai + stats.ye * 2;
+            }
+            document.getElementById('totalCount').textContent = totalCount;
         }
 
         // 切换上个月
