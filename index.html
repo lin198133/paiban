@@ -291,18 +291,6 @@
             margin-top: 10px;
         }
         
-        /* 提示信息 */
-        .info-message {
-            margin-top: 10px;
-            padding: 8px 12px;
-            background: #e6f7ff;
-            border-radius: 8px;
-            border-left: 4px solid #1890ff;
-            font-size: 14px;
-            color: #333;
-            line-height: 1.5;
-        }
-        
         /* 自定义模式基准日期设置 */
         .custom-base-date-container {
             margin-top: 15px;
@@ -402,9 +390,6 @@
                 <label for="customBaseDate">基准日期：</label>
                 <input type="date" id="customBaseDate">
                 <div class="saved-date">当前基准日期：<span id="customSavedDateDisplay">未设置</span></div>
-                <div class="info-message">
-                    自定义模式将以此日期为基准进行推算，可以设置任意班型作为基准。
-                </div>
             </div>
             
             <button class="settings-button" onclick="saveCustomSettings()">保存自定义设置</button>
@@ -415,7 +400,7 @@
     <button class="floating-button" onclick="goToToday()">🐾 回到今天</button>
 
     <script>
-        let customBaseDate = new Date('2025-02-27T00:00:00'); // 自定义模式基准日期
+        let customBaseDate = new Date('2025-08-22T00:00:00'); // 修改为2025年8月22日
         let customShifts = ['bai', 'ye', 'xia', 'xiu']; // 默认自定义班型
 
         // 班型定义
@@ -584,7 +569,7 @@
                 document.getElementById('customBaseDate').value = `${year}-${month}-${day}`;
             } else {
                 // 设置默认值并格式化为YYYY-MM-DD
-                customBaseDate = new Date('2025-02-27T00:00:00');
+                customBaseDate = new Date('2025-08-22T00:00:00'); // 修改为2025年8月22日
                 shiftModes.custom.baseDate = customBaseDate;
                 const year = customBaseDate.getFullYear();
                 const month = (customBaseDate.getMonth() + 1).toString().padStart(2, '0');
