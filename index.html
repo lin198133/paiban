@@ -152,26 +152,6 @@
             visibility: hidden;
         }
 
-        /* 统计区域 */
-        .stats-panel {
-            margin-top: 20px;
-            padding: 15px;
-            background: #fff5f9;
-            border-radius: 15px;
-            border: 1px solid #ffd1dc;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-        .stats-item {
-            padding: 8px 15px;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
         /* 浮动按钮 */
         .floating-button {
             position: fixed;
@@ -324,6 +304,29 @@
             color: var(--primary-color);
             font-weight: bold;
         }
+        
+        /* 说明按钮样式 */
+        .info-button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -361,16 +364,12 @@
             <div class="arrow" onclick="nextMonth()">▶️</div>
         </div>
 
-        <!-- 统计区域 -->
-        <div class="stats-panel">
-            <div class="stats-item">🐱 白班: <span id="baiCount">0</span> 天</div>
-            <div class="stats-item">🐾 夜班: <span id="yeCount">0</span> 天</div>
-            <div class="stats-item">📅 本月共计: <span id="totalCount">0</span> 天班</div>
-        </div>
-
         <!-- 自定义班型设置面板 -->
         <div id="customShiftPanel" class="custom-shift-panel">
-            <h3>自定义班型设置</h3>
+            <div class="panel-header">
+                <h3>自定义班型设置</h3>
+                <button class="info-button" onclick="showInstructions()">?</button>
+            </div>
             <p>设置连续几天的班型循环：</p>
             <div id="customShiftInputs">
                 <div class="shift-input-group">
@@ -414,6 +413,31 @@
         };
 
         const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+
+        // 显示使用说明
+        function showInstructions() {
+            alert("🐱 娜娜的智能排班表使用说明 🐾\n\n" +
+                  "1. 首先，在下方设置你的班型循环顺序\n" +
+                  "   - 比如设置成：白班 → 夜班 → 下夜 → 正休\n" +
+                  "   - 点击'+添加一天'可以增加更多班型\n\n" +
+                  
+                  "2. 然后选择一个基准日期\n" +
+                  "   - 这个日期应该是你循环开始的那一天\n" +
+                  "   - 比如你设置2025年8月22日是白班\n\n" +
+                  
+                  "3. 点击'保存自定义设置'按钮\n" +
+                  "   - 系统会自动按照你的设置生成排班表\n\n" +
+                  
+                  "4. 使用左右箭头可以查看不同月份的排班\n\n" +
+                  
+                  "5. 点击'回到今天'可以快速跳转到当前月份\n\n" +
+                  
+                  "举个例子：\n" +
+                  "如果你设置班型为：白班、夜班、下夜、正休\n" +
+                  "基准日期设为2025年8月22日（白班）\n" +
+                  "那么8月23日就是夜班，8月24日是下夜，8月25日是正休\n" +
+                  "8月26日又回到白班，如此循环下去~");
+        }
 
         // 添加班型输入框
         function addShiftInput() {
@@ -635,9 +659,6 @@
             const cycle = currentMode.cycle;
             const modeBaseDate = currentMode.baseDate;
 
-            // 统计各班次天数
-            const stats = { bai: 0, ye: 0, xia: 0, xiu: 0 };
-
             calendar.innerHTML = '';
             let date = 1;
 
@@ -667,23 +688,11 @@
                                 ${labels[shift]}
                             </div>
                         `;
-
-                        // 统计班次天数
-                        if (stats.hasOwnProperty(shift)) {
-                            stats[shift]++;
-                        }
                         date++;
                     }
                     calendar.appendChild(cell);
                 }
             }
-
-            // 更新统计区域
-            document.getElementById('baiCount').textContent = stats.bai;
-            document.getElementById('yeCount').textContent = stats.ye;
-            // 计算总班次天数（自定义模式下，只计算白班和夜班，夜班算2天）
-            let totalCount = stats.bai + stats.ye * 2;
-            document.getElementById('totalCount').textContent = totalCount;
         }
 
         // 切换上个月
