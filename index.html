@@ -420,16 +420,12 @@
                   "1. 首先，在下方设置你的班型循环顺序\n" +
                   "   - 比如设置成：白班 → 夜班 → 下夜 → 正休\n" +
                   "   - 点击'+添加一天'可以增加更多班型\n\n" +
-                  
                   "2. 然后选择一个基准日期\n" +
                   "   - 这个日期应该是你循环开始的那一天\n" +
                   "   - 比如你设置2025年8月22日是白班\n\n" +
-                  
                   "3. 点击'保存自定义设置'按钮\n" +
                   "   - 系统会自动按照你的设置生成排班表\n\n" +
-                  
                   "4. 使用左右箭头可以查看不同月份的排班\n\n" +
-                  
                   "5. 点击'回到今天'可以快速跳转到当前月份\n\n" +
                   
                   "举个例子：\n" +
@@ -605,10 +601,6 @@
             loadCustomShifts();
             updateCustomSavedDateDisplay();
             
-            // 更新年月选择器以匹配基准日期
-            document.getElementById('yearSelect').value = customBaseDate.getFullYear();
-            document.getElementById('monthSelect').value = customBaseDate.getMonth() + 1;
-            
             generateCalendar();
             updateCurrentMonthDisplay();
         }
@@ -628,9 +620,10 @@
                 monthSelect.add(new Option(m + '月', m));
             }
 
-            // 设置默认选中为基准日期
-            yearSelect.value = customBaseDate.getFullYear();
-            monthSelect.value = customBaseDate.getMonth() + 1;
+            // 设置默认选中为当前年月
+            const today = new Date();
+            yearSelect.value = today.getFullYear();
+            monthSelect.value = today.getMonth() + 1;
 
             yearSelect.addEventListener('change', () => {
                 generateCalendar();
