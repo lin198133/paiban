@@ -3,182 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐱 娜娜的智能排班表 🐾</title>
+    <title>智能排班表</title>
     <style>
-        /* 基础样式 */
         :root {
-            --primary-color: #ff7eb9; /* 粉色 */
-            --secondary-color: #d5a6ff; /* 紫色 */
-            --background-color: #fff0f5; /* 浅粉色背景 */
+            --primary-color: #5b7b94;
+            --primary-light: #a3bed0;
+            --primary-bg: #f4f8fb;
+            --secondary-color: #8e9aaf;
+            --secondary-light: #c4cdd9;
+            --accent-soft: #eef2f6;
+            --text-primary: #2c3a47;
+            --text-secondary: #5d6d7e;
+            --white-soft: #ffffff;
+            --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 6px 22px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 36px rgba(0, 0, 0, 0.08);
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 22px;
+            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --border-soft: 1px solid #e1e6eb;
         }
-        body {
-            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
-            background: var(--background-color);
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+            background: #f0f4f8;
+            background-image: radial-gradient(circle at 20% 30%, #e3ecf4 0%, transparent 35%),
+                radial-gradient(circle at 80% 70%, #dce6f0 0%, transparent 40%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ctext x='50%' y='50%' font-size='20' fill='%23ff7eb9' text-anchor='middle' dominant-baseline='middle'%3E🐾%3C/text%3E%3C/svg%3E");
-            background-size: 50px;
+            color: var(--text-primary);
+            -webkit-tap-highlight-color: transparent;
+            padding: 20px 0;
         }
+
+        /* 主容器 */
         .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 20px auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-            padding: 20px;
+            width: 92%;
+            max-width: 820px;
+            margin: 0 auto;
+            background: var(--white-soft);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 28px 24px;
             position: relative;
             overflow: hidden;
+            transition: all var(--transition-smooth);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(2px);
         }
+
         .container::before {
-            content: '🐱';
+            content: '';
             position: absolute;
-            top: -20px;
-            right: -20px;
-            font-size: 80px;
-            color: var(--primary-color);
-            opacity: 0.2;
-            transform: rotate(30deg);
+            top: -30px;
+            right: -30px;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(163, 190, 208, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
         }
+
+        .header {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
         .header h1 {
-            font-size: 28px;
+            font-size: 26px;
+            font-weight: 600;
             text-align: center;
-            margin: 10px 0;
-            color: var(--primary-color);
+            margin: 8px 0;
+            color: #2c3a47;
+            letter-spacing: 0.3px;
+            background: linear-gradient(135deg, #4a627a, #5b7b94);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 设置触发按钮 */
+        .settings-trigger {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #f7f9fb;
+            border: 1px solid #dce3ea;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-smooth);
+            z-index: 10;
+            color: #5b7b94;
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(4px);
+        }
+
+        .settings-trigger:hover {
+            background: #e9f0f5;
+            transform: rotate(60deg);
+            box-shadow: var(--shadow-md);
+            color: #3a5a6f;
+            border-color: #b8ccda;
+        }
+
+        .settings-trigger:active {
+            transform: rotate(90deg) scale(0.92);
+            transition: 0.15s ease;
         }
 
         /* 日期选择器 */
         .date-selector {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
         }
+
         select {
-            padding: 8px 15px;
-            border: 1px solid #ffd1dc;
-            border-radius: 10px;
-            background: #fff5f9;
+            padding: 10px 18px;
+            border: 1px solid #dce3ea;
+            border-radius: var(--radius-sm);
+            background: #f9fbfd;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all var(--transition-smooth);
             width: 100%;
-            max-width: 150px;
-            color: var(--primary-color);
+            max-width: 160px;
+            color: #2c3a47;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%235b7b94'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 34px;
         }
+
         select:hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 2px 8px rgba(255,126,185,0.2);
+            border-color: #b8ccda;
+            box-shadow: 0 2px 10px rgba(91, 123, 148, 0.08);
+            background: #ffffff;
+        }
+        select:focus {
+            outline: none;
+            border-color: #5b7b94;
+            box-shadow: 0 2px 12px rgba(91, 123, 148, 0.12);
         }
 
         /* 日历外框 */
         .calendar-wrapper {
-            border: 2px solid var(--primary-color);
-            border-radius: 15px;
+            border: 1px solid #e1e8ef;
+            border-radius: var(--radius-md);
             overflow: hidden;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+            background: #ffffff;
+            box-shadow: var(--shadow-sm);
         }
+
         .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            padding: 10px;
-            background: var(--primary-color);
-            color: white;
-            font-weight: bold;
+            gap: 6px;
+            padding: 12px 8px;
+            background: #f4f8fb;
+            color: #4a627a;
+            font-weight: 600;
             text-align: center;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e1e8ef;
         }
+
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            padding: 10px;
-            background: white;
+            gap: 6px;
+            padding: 10px 8px;
+            background: #ffffff;
         }
+
         .day {
-            background: #fff5f9;
-            border: 1px solid #ffd1dc;
-            border-radius: 10px;
-            padding: 10px;
-            min-height: 80px;
+            background: #fafcfd;
+            border: 1px solid #e9eff4;
+            border-radius: var(--radius-sm);
+            padding: 10px 4px;
+            min-height: 78px;
             position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
+            cursor: default;
         }
+
         .day:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(255,126,185,0.2);
+            transform: scale(1.03);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            background: #ffffff;
+            border-color: #cddae6;
         }
+
         .today {
             position: relative;
-            border: 3px solid #ff6b6b;
-            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
-            color: white;
-            animation: todayGlow 1.5s infinite alternate ease-in-out;
-            transform: scale(1.05);
+            border: 2px solid #5b7b94;
+            background: linear-gradient(145deg, #f0f7fc, #e6f0f7);
+            animation: todayGlowSoft 2.4s infinite alternate ease-in-out;
             z-index: 2;
-        }
-        @keyframes todayGlow {
-            from { box-shadow: 0 0 15px rgba(255,107,107,0.5); }
-            to { box-shadow: 0 0 30px rgba(255,107,107,0.9); }
-        }
-        .today::before {
-            content: '🐾';
-            position: absolute;
-            top: -3px;
-            left: -3px;
-            right: -3px;
-            bottom: -3px;
-            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
             border-radius: 12px;
-            z-index: -1;
-            opacity: 0.8;
         }
-        .shift-bai { background: #ffebeb; }
-        .shift-ye { background: #e6ffe6; }
-        .shift-xia { background: #e6f3ff; }
-        .shift-xiu { background: #fff7e6; }
+
+        @keyframes todayGlowSoft {
+            from {
+                box-shadow: 0 0 10px rgba(91, 123, 148, 0.2), 0 0 20px rgba(91, 123, 148, 0.05);
+            }
+            to {
+                box-shadow: 0 0 18px rgba(91, 123, 148, 0.35), 0 0 35px rgba(91, 123, 148, 0.1);
+            }
+        }
+
+        .today::after {
+            content: '●';
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 10px;
+            color: #5b7b94;
+            animation: pulseDot 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulseDot {
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+        }
+
+        .shift-bai {
+            background: #f5f9fc;
+        }
+        .shift-ye {
+            background: #f2f6f3;
+        }
+        .shift-xia {
+            background: #f5f7fa;
+        }
+        .shift-xiu {
+            background: #f9f7f4;
+        }
+
         .selected-day {
-            box-shadow: 0 0 0 2px #ffd700;
+            box-shadow: 0 0 0 2.5px #b0c7d9;
             z-index: 1;
         }
         .empty-day {
             visibility: hidden;
+            pointer-events: none;
         }
 
-        /* 浮动按钮 */
-        .floating-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 8px 16px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: transform 0.3s, box-shadow 0.3s;
-            z-index: 1000;
-            font-size: 14px;
-            width: auto;
-            min-width: 100px;
+        .day-number {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3a47;
+            line-height: 1;
         }
-        .floating-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        .shift-mark {
+            font-size: 13px;
+            margin-top: 6px;
+            color: #4a627a;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 2px 6px;
+            border-radius: 20px;
         }
 
-        /* 响应式设计 */
+        .today .day-number {
+            color: #1d2f3c;
+        }
+        .today .shift-mark {
+            background: rgba(255, 255, 255, 0.8);
+            color: #1d2f3c;
+            font-weight: 600;
+        }
+
+        /* 响应式日历 */
         @media (max-width: 600px) {
             .header h1 {
-                font-size: 24px;
+                font-size: 22px;
             }
             .date-selector {
                 flex-direction: column;
@@ -187,26 +329,36 @@
                 max-width: none;
             }
             .calendar {
-                grid-template-columns: repeat(7, 1fr);
-                gap: 5px;
+                gap: 4px;
+                padding: 6px 4px;
+            }
+            .weekdays {
+                gap: 4px;
+                padding: 8px 4px;
+                font-size: 11px;
             }
             .day {
-                min-height: 60px;
-                padding: 5px;
-                font-size: 12px;
+                min-height: 56px;
+                padding: 5px 2px;
+                border-radius: 7px;
             }
             .day-number {
-                font-size: 10px;
+                font-size: 12px;
             }
             .shift-mark {
                 font-size: 10px;
+                margin-top: 3px;
             }
-            .floating-button {
-                bottom: 10px;
-                right: 10px;
-                font-size: 12px;
-                padding: 6px 12px;
-                min-width: 80px;
+            .settings-trigger {
+                top: 4px;
+                right: 4px;
+                width: 36px;
+                height: 36px;
+                font-size: 17px;
+            }
+            .container {
+                padding: 18px 12px;
+                border-radius: 14px;
             }
         }
 
@@ -214,135 +366,431 @@
         .arrow-container {
             display: flex;
             justify-content: space-between;
-            align-items: center; /* 垂直居中 */
-            margin-top: 10px;
+            align-items: center;
+            margin-top: 6px;
+            position: relative;
+            z-index: 1;
         }
         .arrow {
             font-size: 24px;
             cursor: pointer;
-            color: var(--primary-color);
-            transition: transform 0.3s, color 0.3s;
+            color: #7a92a6;
+            transition: transform 0.3s ease, color 0.3s ease;
             user-select: none;
+            padding: 6px 10px;
+            border-radius: 50%;
+            line-height: 1;
         }
         .arrow:hover {
             transform: scale(1.2);
-            color: var(--secondary-color);
+            color: #4a627a;
+        }
+        .arrow:active {
+            transform: scale(0.9);
+            transition: 0.1s ease;
         }
         .current-month {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--primary-color);
+            font-size: 19px;
+            font-weight: 600;
+            color: #3a5064;
+            letter-spacing: 0.4px;
         }
-        
-        /* 自定义班型设置面板 */
-        .custom-shift-panel {
-            margin-top: 15px;
-            padding: 15px;
-            background: #fff5f9;
-            border-radius: 15px;
-            border: 1px solid #ffd1dc;
-        }
-        .shift-input-group {
+
+        /* 浮动按钮 */
+        .floating-button {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 22px;
+            background: #ffffff;
+            color: #2c3a47;
+            border: 1px solid #dce3ea;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            z-index: 100;
+            font-size: 14px;
+            font-family: inherit;
+            letter-spacing: 0.4px;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            gap: 6px;
+            backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.85);
         }
-        .shift-input-group select {
-            max-width: 100px;
-            margin-right: 10px;
+        .floating-button:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            background: #ffffff;
+            border-color: #b8ccda;
         }
-        .shift-input-group .remove-shift {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            cursor: pointer;
-            margin-left: 10px;
+        .floating-button:active {
+            transform: translateY(-1px) scale(0.96);
+            transition: 0.12s ease;
         }
-        .add-shift-button {
-            background: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 8px 15px;
-            cursor: pointer;
-            margin-top: 10px;
+
+        @media (max-width: 600px) {
+            .floating-button {
+                bottom: 14px;
+                right: 14px;
+                font-size: 13px;
+                padding: 10px 16px;
+                gap: 4px;
+            }
         }
-        
-        /* 自定义模式基准日期设置 */
-        .custom-base-date-container {
-            margin-top: 15px;
-            padding: 10px;
-            background: #fff0f5;
-            border-radius: 10px;
-            border: 1px dashed #ffd1dc;
-        }
-        
-        /* 设置按钮 */
-        .settings-button {
-            padding: 8px 15px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            margin: 5px 0;
+
+        /* ============ 侧边抽屉设置面板 ============ */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 200px;
+            height: 100%;
+            background: rgba(20, 30, 40, 0.2);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-smooth), visibility var(--transition-smooth);
+            -webkit-backdrop-filter: blur(2px);
+            backdrop-filter: blur(2px);
         }
-        .settings-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(255,126,185,0.3);
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
-        
-        .saved-date {
-            margin-top: 10px;
-            font-size: 14px;
-            color: var(--primary-color);
-            font-weight: bold;
+
+        .settings-drawer {
+            position: fixed;
+            top: 0;
+            right: -440px;
+            width: 420px;
+            max-width: 90vw;
+            height: 100vh;
+            background: #ffffff;
+            z-index: 210;
+            box-shadow: -8px 0 45px rgba(0, 0, 0, 0.08);
+            transition: right var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 22px 0 0 22px;
+            border-left: 1px solid #e9eff4;
         }
-        
-        /* 说明按钮样式 */
-        .info-button {
-            background: var(--secondary-color);
-            color: white;
-            border: none;
+
+        .settings-drawer.active {
+            right: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 22px;
+            border-bottom: 1px solid #eef3f7;
+            background: #f9fbfd;
+            flex-shrink: 0;
+        }
+
+        .drawer-header h3 {
+            margin: 0;
+            font-size: 19px;
+            color: #2c3a47;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .drawer-close {
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            width: 25px;
-            height: 25px;
+            border: none;
+            background: #f0f4f8;
             cursor: pointer;
-            margin-left: 10px;
-            font-size: 16px;
-            display: inline-flex;
+            font-size: 18px;
+            display: flex;
             align-items: center;
             justify-content: center;
+            color: #5d6d7e;
+            transition: all 0.25s ease;
         }
-        
+        .drawer-close:hover {
+            background: #e1e8ef;
+            color: #2c3a47;
+            transform: rotate(90deg);
+        }
+
+        .drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 22px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .drawer-body::-webkit-scrollbar {
+            width: 5px;
+        }
+        .drawer-body::-webkit-scrollbar-thumb {
+            background: #cddae6;
+            border-radius: 10px;
+        }
+        .drawer-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-shift-panel {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+
         .panel-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .panel-header h4 {
+            margin: 0;
+            font-size: 16px;
+            color: #2c3a47;
+            font-weight: 600;
+        }
+
+        .info-button {
+            background: #e9f0f5;
+            color: #3a5064;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            font-weight: 700;
+        }
+        .info-button:hover {
+            background: #d1dee9;
+            color: #1d2f3c;
+            transform: scale(1.08);
+        }
+
+        .section-label {
+            font-size: 13px;
+            color: #5d6d7e;
             margin-bottom: 10px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .shift-input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 10px;
+            background: #f9fbfd;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #e9eff4;
+            transition: all 0.2s ease;
+        }
+        .shift-input-group:hover {
+            border-color: #c0d0de;
+            background: #ffffff;
+        }
+
+        .shift-input-group select {
+            flex: 1;
+            max-width: none;
+            margin-right: 0;
+            font-size: 13px;
+            padding: 8px 14px;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+
+        .shift-input-group .shift-day-label {
+            font-size: 12px;
+            color: #5d6d7e;
+            font-weight: 600;
+            white-space: nowrap;
+            min-width: 42px;
+            text-align: center;
+            background: #f0f4f8;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+
+        .remove-shift {
+            background: #f0f4f8;
+            color: #5d6d7e;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+        .remove-shift:hover {
+            background: #dce3ea;
+            color: #2c3a47;
+            transform: scale(1.1);
+        }
+
+        .add-shift-button {
+            background: #f4f8fb;
+            color: #3a5064;
+            border: 1px dashed #b8ccda;
+            border-radius: 10px;
+            padding: 10px 18px;
+            cursor: pointer;
+            margin-top: 6px;
+            width: 100%;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+        }
+        .add-shift-button:hover {
+            background: #e9f0f5;
+            border-color: #8ba0b3;
+            color: #1d2f3c;
+        }
+
+        .custom-base-date-container {
+            margin-top: 18px;
+            padding: 16px 18px;
+            background: #f9fbfd;
+            border-radius: 14px;
+            border: 1px dashed #cddae6;
+        }
+
+        .custom-base-date-container label {
+            font-size: 13px;
+            color: #2c3a47;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .custom-base-date-container input[type="date"] {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid #dce3ea;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13px;
+            color: #2c3a47;
+            background: #ffffff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .custom-base-date-container input[type="date"]:focus {
+            outline: none;
+            border-color: #5b7b94;
+            box-shadow: 0 2px 10px rgba(91, 123, 148, 0.1);
+        }
+
+        .saved-date {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #5d6d7e;
+            font-weight: 500;
+        }
+        .saved-date span {
+            color: #1d2f3c;
+            font-weight: 600;
+            background: #e9f0f5;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .settings-save-button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            background: #5b7b94;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            letter-spacing: 0.5px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(91, 123, 148, 0.2);
+        }
+        .settings-save-button:hover {
+            background: #4a6a82;
+            box-shadow: 0 8px 20px rgba(91, 123, 148, 0.3);
+            transform: translateY(-2px);
+        }
+        .settings-save-button:active {
+            transform: translateY(0) scale(0.97);
+            transition: 0.1s ease;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #e9eff4;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            .settings-drawer {
+                width: 94vw;
+                max-width: 94vw;
+                right: -96vw;
+                border-radius: 18px 0 0 18px;
+            }
+            .drawer-body {
+                padding: 16px 14px;
+            }
+            .drawer-header {
+                padding: 16px 16px;
+            }
+            .drawer-header h3 {
+                font-size: 17px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🐱 娜娜的智能排班表 🐾</h1>
-        </div>
-        
-        <div class="date-selector">
-            <select id="yearSelect"></select>
-            <select id="monthSelect"></select>
+            <h1>📋 智能排班表</h1>
         </div>
 
-        <!-- 表格外框 -->
+        <!-- 设置触发按钮 -->
+        <button class="settings-trigger" onclick="openSettingsDrawer()" title="排班设置" aria-label="打开设置面板">
+            ⚙️
+        </button>
+
+        <div class="date-selector">
+            <select id="yearSelect" aria-label="选择年份"></select>
+            <select id="monthSelect" aria-label="选择月份"></select>
+        </div>
+
+        <!-- 日历外框 -->
         <div class="calendar-wrapper">
-            <!-- 星期显示行 -->
             <div class="weekdays">
                 <div>周日</div>
                 <div>周一</div>
@@ -352,151 +800,198 @@
                 <div>周五</div>
                 <div>周六</div>
             </div>
-
-            <!-- 日历内容 -->
             <div id="calendar" class="calendar"></div>
         </div>
 
         <!-- 箭头容器 -->
         <div class="arrow-container">
-            <div class="arrow" onclick="prevMonth()">◀️</div>
+            <div class="arrow" onclick="prevMonth()" title="上个月">◀️</div>
             <div class="current-month" id="currentMonth"></div>
-            <div class="arrow" onclick="nextMonth()">▶️</div>
-        </div>
-
-        <!-- 自定义班型设置面板 -->
-        <div id="customShiftPanel" class="custom-shift-panel">
-            <div class="panel-header">
-                <h3>自定义班型设置</h3>
-                <button class="info-button" onclick="showInstructions()">?</button>
-            </div>
-            <p>设置连续几天的班型循环：</p>
-            <div id="customShiftInputs">
-                <div class="shift-input-group">
-                    <select class="shift-type">
-                        <option value="bai">白班</option>
-                        <option value="ye">夜班</option>
-                        <option value="xia">下夜</option>
-                        <option value="xiu">正休</option>
-                    </select>
-                    <button class="remove-shift" onclick="removeShiftInput(this)">×</button>
-                </div>
-            </div>
-            <button class="add-shift-button" onclick="addShiftInput()">+ 添加一天</button>
-            
-            <!-- 自定义模式基准日期设置 -->
-            <div class="custom-base-date-container">
-                <label for="customBaseDate">基准日期：</label>
-                <input type="date" id="customBaseDate">
-                <div class="saved-date">当前基准日期：<span id="customSavedDateDisplay">未设置</span></div>
-            </div>
-            
-            <button class="settings-button" onclick="saveCustomSettings()">保存自定义设置</button>
+            <div class="arrow" onclick="nextMonth()" title="下个月">▶️</div>
         </div>
     </div>
 
     <!-- 浮动按钮 -->
-    <button class="floating-button" onclick="goToToday()">🐾 回到今天</button>
+    <button class="floating-button" onclick="goToToday()">📍 回到今天</button>
+
+    <!-- ============ 侧边抽屉：设置面板 ============ -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeSettingsDrawer()"></div>
+    <div class="settings-drawer" id="settingsDrawer">
+        <div class="drawer-header">
+            <h3>⚙️ 排班设置</h3>
+            <button class="drawer-close" onclick="closeSettingsDrawer()" aria-label="关闭设置">✕</button>
+        </div>
+        <div class="drawer-body">
+            <div class="custom-shift-panel">
+                <div class="panel-header">
+                    <h4>📌 自定义班型循环</h4>
+                    <button class="info-button" onclick="showInstructions()" title="使用说明">?</button>
+                </div>
+                <p class="section-label">设置连续几天的班型循环顺序：</p>
+                <div id="customShiftInputs">
+                    <!-- 动态生成的班型输入行 -->
+                </div>
+                <button class="add-shift-button" onclick="addShiftInput()">＋ 添加一天</button>
+
+                <hr class="divider">
+
+                <div class="custom-base-date-container">
+                    <label for="customBaseDate">📅 基准日期（循环开始的日期）：</label>
+                    <input type="date" id="customBaseDate">
+                    <div class="saved-date">当前基准日期：<span id="customSavedDateDisplay">未设置</span></div>
+                </div>
+
+                <button class="settings-save-button" onclick="saveCustomSettings()">💾 保存设置并应用</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        let customBaseDate = new Date('2025-08-22T00:00:00'); // 修改为2025年8月22日
-        let customShifts = ['bai', 'ye', 'xia', 'xiu']; // 默认自定义班型
+        let customBaseDate = new Date('2025-08-22T00:00:00');
+        let customShifts = ['bai', 'ye', 'xia', 'xiu'];
 
-        // 班型定义
         const shiftModes = {
             custom: {
                 shifts: customShifts,
-                labels: {bai: '白', ye: '夜', xia: '下夜', xiu: '休'},
+                labels: { bai: '白', ye: '夜', xia: '下夜', xiu: '休' },
                 cycle: customShifts.length,
                 baseDate: customBaseDate
             }
         };
 
-        const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-
-        // 显示使用说明
-        function showInstructions() {
-            alert("🐱 娜娜的智能排班表使用说明 🐾\n\n" +
-                  "1. 首先，在下方设置你的班型循环顺序\n" +
-                  "   - 比如设置成：白班 → 夜班 → 下夜 → 正休\n" +
-                  "   - 点击'+添加一天'可以增加更多班型\n\n" +
-                  "2. 然后选择一个基准日期\n" +
-                  "   - 这个日期应该是你循环开始的那一天\n" +
-                  "   - 比如你设置2025年8月22日是白班\n\n" +
-                  "3. 点击'保存自定义设置'按钮\n" +
-                  "   - 系统会自动按照你的设置生成排班表\n\n" +
-                  "4. 使用左右箭头可以查看不同月份的排班\n\n" +
-                  "5. 点击'回到今天'可以快速跳转到当前月份\n\n" +
-                  
-                  "举个例子：\n" +
-                  "如果你设置班型为：白班、夜班、下夜、正休\n" +
-                  "基准日期设为2025年8月22日（白班）\n" +
-                  "那么8月23日就是夜班，8月24日是下夜，8月25日是正休\n" +
-                  "8月26日又回到白班，如此循环下去~");
+        // ============ 抽屉控制 ============
+        function openSettingsDrawer() {
+            document.getElementById('settingsDrawer').classList.add('active');
+            document.getElementById('drawerOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            refreshShiftInputs();
         }
 
-        // 添加班型输入框
+        function closeSettingsDrawer() {
+            document.getElementById('settingsDrawer').classList.remove('active');
+            document.getElementById('drawerOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSettingsDrawer();
+            }
+        });
+
+        function showInstructions() {
+            alert(
+                "📋 智能排班表 — 使用说明\n\n" +
+                "1️⃣ 设置班型循环顺序\n" +
+                "   例如：白班 → 夜班 → 下夜 → 正休\n" +
+                "   点击「＋添加一天」可增加更多班型\n\n" +
+                "2️⃣ 选择基准日期\n" +
+                "   这是循环开始的那一天\n" +
+                "   例如：设定 2025年8月22日 是白班\n\n" +
+                "3️⃣ 点击「保存设置并应用」\n" +
+                "   系统会自动按设置生成排班表\n\n" +
+                "4️⃣ 使用左右箭头切换月份\n\n" +
+                "5️⃣ 点击右下角按钮快速回到今天\n\n" +
+                "📌 举例：\n" +
+                "班型设为：白班、夜班、下夜、正休\n" +
+                "基准日期：2025年8月22日（白班）\n" +
+                "则 8月23日=夜班，8月24日=下夜，\n" +
+                "8月25日=正休，8月26日=白班…循环往复 ✨"
+            );
+        }
+
         function addShiftInput() {
             const inputsContainer = document.getElementById('customShiftInputs');
+            const currentCount = inputsContainer.children.length;
             const newInput = document.createElement('div');
             newInput.className = 'shift-input-group';
             newInput.innerHTML = `
-                <select class="shift-type">
-                    <option value="bai">白班</option>
-                    <option value="ye">夜班</option>
-                    <option value="xia">下夜</option>
-                    <option value="xiu">正休</option>
-                </select>
-                <button class="remove-shift" onclick="removeShiftInput(this)">×</button>
-            `;
+                        <span class="shift-day-label">第${currentCount + 1}天</span>
+                        <select class="shift-type">
+                            <option value="bai">白班</option>
+                            <option value="ye">夜班</option>
+                            <option value="xia">下夜</option>
+                            <option value="xiu">正休</option>
+                        </select>
+                        <button class="remove-shift" onclick="removeShiftInput(this)" title="移除">×</button>
+                    `;
             inputsContainer.appendChild(newInput);
+            updateDayLabels();
         }
 
-        // 移除班型输入框
         function removeShiftInput(button) {
             const inputsContainer = document.getElementById('customShiftInputs');
             if (inputsContainer.children.length > 1) {
                 button.parentElement.remove();
+                updateDayLabels();
             }
         }
 
-        // 保存自定义设置（班型和基准日期）
+        function updateDayLabels() {
+            const inputsContainer = document.getElementById('customShiftInputs');
+            const groups = inputsContainer.querySelectorAll('.shift-input-group');
+            groups.forEach((group, index) => {
+                const label = group.querySelector('.shift-day-label');
+                if (label) {
+                    label.textContent = `第${index + 1}天`;
+                }
+            });
+        }
+
+        function refreshShiftInputs() {
+            const inputsContainer = document.getElementById('customShiftInputs');
+            inputsContainer.innerHTML = '';
+            customShifts.forEach((shift, index) => {
+                const newInput = document.createElement('div');
+                newInput.className = 'shift-input-group';
+                newInput.innerHTML = `
+                            <span class="shift-day-label">第${index + 1}天</span>
+                            <select class="shift-type">
+                                <option value="bai" ${shift === 'bai' ? 'selected' : ''}>白班</option>
+                                <option value="ye" ${shift === 'ye' ? 'selected' : ''}>夜班</option>
+                                <option value="xia" ${shift === 'xia' ? 'selected' : ''}>下夜</option>
+                                <option value="xiu" ${shift === 'xiu' ? 'selected' : ''}>正休</option>
+                            </select>
+                            <button class="remove-shift" onclick="removeShiftInput(this)" title="移除">×</button>
+                        `;
+                inputsContainer.appendChild(newInput);
+            });
+        }
+
         function saveCustomSettings() {
-            // 保存班型
-            const shiftInputs = document.querySelectorAll('.shift-type');
+            const shiftInputs = document.querySelectorAll('#customShiftInputs .shift-type');
             customShifts = Array.from(shiftInputs).map(input => input.value);
-            
-            // 更新班型模式
+
             shiftModes.custom.shifts = customShifts;
             shiftModes.custom.cycle = customShifts.length;
-            
-            // 保存到本地存储
+
             localStorage.setItem('customShifts', JSON.stringify(customShifts));
-            
-            // 保存基准日期
+
             const input = document.getElementById('customBaseDate');
             if (input.value) {
-                // 修复时区问题：将日期字符串转换为本地时间
                 const dateParts = input.value.split('-');
                 const year = parseInt(dateParts[0]);
-                const month = parseInt(dateParts[1]) - 1; // 月份从0开始
+                const month = parseInt(dateParts[1]) - 1;
                 const day = parseInt(dateParts[2]);
-                
                 customBaseDate = new Date(year, month, day);
                 shiftModes.custom.baseDate = customBaseDate;
-                
-                // 保存ISO字符串（包含时区信息）
                 localStorage.setItem('customBaseDate', customBaseDate.toISOString());
             }
-            
-            // 重新生成日历
+
             generateCalendar();
             updateCustomSavedDateDisplay();
-            
-            alert('自定义设置已保存！');
+            updateCurrentMonthDisplay();
+
+            const saveBtn = document.querySelector('.settings-save-button');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = '✅ 已保存！';
+            saveBtn.style.background = '#4a6a82';
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+                saveBtn.style.background = '';
+            }, 1500);
         }
 
-        // 加载自定义班型
         function loadCustomShifts() {
             const savedShifts = localStorage.getItem('customShifts');
             if (savedShifts) {
@@ -504,33 +999,12 @@
                 shiftModes.custom.shifts = customShifts;
                 shiftModes.custom.cycle = customShifts.length;
             }
-            
-            // 更新输入框
-            const inputsContainer = document.getElementById('customShiftInputs');
-            inputsContainer.innerHTML = '';
-            
-            customShifts.forEach(shift => {
-                const newInput = document.createElement('div');
-                newInput.className = 'shift-input-group';
-                newInput.innerHTML = `
-                    <select class="shift-type">
-                        <option value="bai" ${shift === 'bai' ? 'selected' : ''}>白班</option>
-                        <option value="ye" ${shift === 'ye' ? 'selected' : ''}>夜班</option>
-                        <option value="xia" ${shift === 'xia' ? 'selected' : ''}>下夜</option>
-                        <option value="xiu" ${shift === 'xiu' ? 'selected' : ''}>正休</option>
-                    </select>
-                    <button class="remove-shift" onclick="removeShiftInput(this)">×</button>
-                `;
-                inputsContainer.appendChild(newInput);
-            });
-            
-            // 加载自定义基准日期
+            refreshShiftInputs();
+
             const savedCustomBaseDate = localStorage.getItem('customBaseDate');
             if (savedCustomBaseDate) {
                 customBaseDate = new Date(savedCustomBaseDate);
                 shiftModes.custom.baseDate = customBaseDate;
-                
-                // 修复时区问题：将日期格式化为YYYY-MM-DD格式
                 const year = customBaseDate.getFullYear();
                 const month = (customBaseDate.getMonth() + 1).toString().padStart(2, '0');
                 const day = customBaseDate.getDate().toString().padStart(2, '0');
@@ -538,20 +1012,21 @@
             }
         }
 
-        // 更新自定义模式基准日期显示
         function updateCustomSavedDateDisplay() {
             const savedDate = localStorage.getItem('customBaseDate');
             const savedDateDisplay = document.getElementById('customSavedDateDisplay');
             if (savedDate) {
                 const date = new Date(savedDate);
-                // 使用本地日期格式显示
-                savedDateDisplay.textContent = date.toLocaleDateString();
+                savedDateDisplay.textContent = date.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
             } else {
                 savedDateDisplay.textContent = '未设置';
             }
         }
 
-        // 更新当前年月显示
         function updateCurrentMonthDisplay() {
             const year = parseInt(document.getElementById('yearSelect').value);
             const month = parseInt(document.getElementById('monthSelect').value);
@@ -568,59 +1043,50 @@
         }
 
         window.onload = function() {
-            // 加载自定义班型
             const savedShifts = localStorage.getItem('customShifts');
             if (savedShifts) {
                 customShifts = JSON.parse(savedShifts);
                 shiftModes.custom.shifts = customShifts;
                 shiftModes.custom.cycle = customShifts.length;
             }
-            
-            // 加载自定义基准日期
+
             const savedCustomBaseDate = localStorage.getItem('customBaseDate');
             if (savedCustomBaseDate) {
                 customBaseDate = new Date(savedCustomBaseDate);
                 shiftModes.custom.baseDate = customBaseDate;
-                
-                // 修复时区问题：将日期格式化为YYYY-MM-DD格式
                 const year = customBaseDate.getFullYear();
                 const month = (customBaseDate.getMonth() + 1).toString().padStart(2, '0');
                 const day = customBaseDate.getDate().toString().padStart(2, '0');
                 document.getElementById('customBaseDate').value = `${year}-${month}-${day}`;
             } else {
-                // 设置默认值并格式化为YYYY-MM-DD
-                customBaseDate = new Date('2025-08-22T00:00:00'); // 修改为2025年8月22日
+                customBaseDate = new Date('2025-08-22T00:00:00');
                 shiftModes.custom.baseDate = customBaseDate;
                 const year = customBaseDate.getFullYear();
                 const month = (customBaseDate.getMonth() + 1).toString().padStart(2, '0');
                 const day = customBaseDate.getDate().toString().padStart(2, '0');
                 document.getElementById('customBaseDate').value = `${year}-${month}-${day}`;
             }
-            
+
             initDateSelector();
             loadCustomShifts();
             updateCustomSavedDateDisplay();
-            
             generateCalendar();
             updateCurrentMonthDisplay();
-        }
+        };
 
         function initDateSelector() {
             const yearSelect = document.getElementById('yearSelect');
             const monthSelect = document.getElementById('monthSelect');
 
-            // 生成年份选项
             const currentYear = new Date().getFullYear();
             for (let y = currentYear - 30; y <= currentYear + 30; y++) {
                 yearSelect.add(new Option(y + '年', y));
             }
 
-            // 生成月份选项
             for (let m = 1; m <= 12; m++) {
                 monthSelect.add(new Option(m + '月', m));
             }
 
-            // 设置默认选中为当前年月
             const today = new Date();
             yearSelect.value = today.getFullYear();
             monthSelect.value = today.getMonth() + 1;
@@ -643,9 +1109,8 @@
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
             const daysInMonth = lastDay.getDate();
-            const startDay = firstDay.getDay(); // 获取本月第一天是星期几
+            const startDay = firstDay.getDay();
 
-            // 获取当前班型模式配置
             const currentMode = shiftModes.custom;
             const shifts = currentMode.shifts;
             const labels = currentMode.labels;
@@ -655,32 +1120,28 @@
             calendar.innerHTML = '';
             let date = 1;
 
-            for (let i = 0; i < 6; i++) { // 最多6行
-                for (let j = 0; j < 7; j++) { // 固定7列
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 7; j++) {
                     const cell = document.createElement('div');
                     const currentDate = new Date(year, month, date);
 
-                    if (i === 0 && j < startDay || date > daysInMonth) {
-                        cell.className = 'day empty-day'; // 隐藏空白日期格
+                    if ((i === 0 && j < startDay) || date > daysInMonth) {
+                        cell.className = 'day empty-day';
                     } else {
-                        // 计算与基准日期的天数差
                         const diffDays = Math.floor((currentDate - modeBaseDate) / 86400000);
-                        // 确保所有模式都以基准日期为开始
-                        const shiftIndex = (diffDays % cycle + cycle) % cycle;
+                        const shiftIndex = ((diffDays % cycle) + cycle) % cycle;
                         const shift = shifts[shiftIndex];
 
                         cell.className = `day shift-${shift}`;
-                        
+
                         if (currentDate.toDateString() === new Date().toDateString()) {
                             cell.classList.add('today');
                         }
 
                         cell.innerHTML = `
-                            <div class="day-number" style="font-size: 16px; font-weight: bold;">${date}</div>
-                            <div class="shift-mark" style="font-size: 14px; margin-top: 5px;">
-                                ${labels[shift]}
-                            </div>
-                        `;
+                                    <div class="day-number">${date}</div>
+                                    <div class="shift-mark">${labels[shift]}</div>
+                                `;
                         date++;
                     }
                     calendar.appendChild(cell);
@@ -688,7 +1149,6 @@
             }
         }
 
-        // 切换上个月
         function prevMonth() {
             const monthSelect = document.getElementById('monthSelect');
             let month = parseInt(monthSelect.value) - 1;
@@ -702,7 +1162,6 @@
             updateCurrentMonthDisplay();
         }
 
-        // 切换下个月
         function nextMonth() {
             const monthSelect = document.getElementById('monthSelect');
             let month = parseInt(monthSelect.value) + 1;
