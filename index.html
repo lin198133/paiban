@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, height=device-height">
-  <title>智能排班表 | 全屏无滚动</title>
+  <title>智能排班表 | 全屏无遮挡优化</title>
   <style>
     :root {
       --primary-color: #5b7b94;
@@ -24,7 +24,6 @@
       --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       --border-soft: 1px solid #e1e6eb;
       
-      /* 班型底色 */
       --day-bg-bai: #d9e6f2;
       --day-bg-ye: #d4e5d9;
       --day-bg-xia: #dce1ec;
@@ -37,7 +36,6 @@
       padding: 0;
     }
 
-    /* 强制html,body占满视口，禁止任何滚动条 */
     html, body {
       width: 100%;
       height: 100%;
@@ -60,7 +58,6 @@
       justify-content: center;
     }
 
-    /* 主容器：完全填满视口且不溢出滚动 */
     .container {
       width: 94%;
       max-width: 820px;
@@ -72,13 +69,12 @@
       box-shadow: var(--shadow-md);
       padding: 14px 18px;
       position: relative;
-      overflow: hidden;  /* 关键：禁止容器滚动 */
+      overflow: hidden;
       transition: all var(--transition-smooth);
       border: 1px solid rgba(255, 255, 255, 0.6);
       backdrop-filter: blur(2px);
       display: flex;
       flex-direction: column;
-      /* 确保内部内容不会撑开滚动 */
       min-height: 0;
     }
 
@@ -95,7 +91,6 @@
       z-index: 0;
     }
 
-    /* 头部区域固定高度 */
     .header {
       position: relative;
       z-index: 1;
@@ -147,17 +142,22 @@
       border-color: #b8ccda;
     }
 
-    /* 日期选择器紧凑，占用极少高度 */
+    /* 顶部工具栏：年份 + 今日按钮整合在一行，避免遮挡 */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-shrink: 0;
+      z-index: 2;
+      position: relative;
+    }
     .date-selector {
       display: flex;
-      flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 6px;
-      position: relative;
-      z-index: 1;
-      flex-shrink: 0;
+      flex: 1;
     }
-
     select {
       padding: 6px 12px;
       border: 1px solid #dce3ea;
@@ -179,7 +179,30 @@
       padding-right: 28px;
     }
 
-    /* 日历外框：弹性填满剩余空间，内部grid自适应不滚动 */
+    /* 今日按钮更精致，不遮挡箭头区域 */
+    .today-btn-header {
+      background: #eef3f9;
+      border: 1px solid #cbdae6;
+      border-radius: 40px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #2c4b5e;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(4px);
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+    .today-btn-header:hover {
+      background: #e2eef9;
+      transform: scale(1.02);
+      border-color: #9cb4c8;
+    }
+
     .calendar-wrapper {
       border: 1px solid #e1e8ef;
       border-radius: var(--radius-md);
@@ -209,7 +232,6 @@
       flex-shrink: 0;
     }
 
-    /* 核心：日历网格使用 minmax 自动适配高度，不产生滚动条 */
     .calendar {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -218,14 +240,10 @@
       background: #ffffff;
       flex: 1;
       align-content: stretch;
-      /* 确保行高度自适应，内容完整显示且不溢出 */
       grid-auto-rows: minmax(68px, auto);
-      overflow-y: auto;  /* 仅当内容极多时内部滚动，但外层容器已限制，且6行不会溢出？为了万无一失不加滚动，利用flex收缩 */
-      /* 为彻底无滚动，禁止内部滚动，由grid自适应高度 */
       overflow: visible;
     }
 
-    /* 日期单元格 - 完全使用班型底色，内部flex布局居中 */
     .day {
       background: #eef2f6;
       border: 1px solid #dce3ea;
@@ -244,7 +262,6 @@
       width: 100%;
     }
 
-    /* 班型专属背景 */
     .shift-bai {
       background: #d9e6f2;
     }
@@ -300,7 +317,6 @@
       border-color: transparent !important;
     }
 
-    /* 日期数字与班型文字无白底 */
     .day-number {
       font-size: clamp(16px, 3.8vw, 20px);
       font-weight: 700;
@@ -332,7 +348,7 @@
       background: transparent;
     }
 
-    /* 箭头容器紧凑 */
+    /* 箭头导航区域更紧凑，没有任何遮挡 */
     .arrow-container {
       display: flex;
       justify-content: space-between;
@@ -363,35 +379,12 @@
       color: #3a5064;
     }
 
-    /* 浮动按钮位置微调 */
-    .floating-button {
-      position: fixed;
-      bottom: 14px;
-      right: 14px;
-      padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.92);
-      color: #2c3a47;
-      border: 1px solid #dce3ea;
-      border-radius: 50px;
-      cursor: pointer;
-      box-shadow: var(--shadow-md);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      z-index: 100;
-      font-size: 13px;
-      font-family: inherit;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      backdrop-filter: blur(6px);
-    }
-    .floating-button:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-lg);
-      background: #ffffff;
+    /* 完全移除之前右下浮动按钮，避免遮挡 */
+    .legacy-floating-btn {
+      display: none;
     }
 
-    /* 抽屉样式保持不变，但确保在最上层 */
+    /* 抽屉样式 */
     .drawer-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -441,7 +434,6 @@
       cursor: pointer; font-weight: 600; margin-top: 16px;
     }
 
-    /* 手机端最大化保留无滚动配置 */
     @media (max-width: 600px) {
       .container {
         width: 96%;
@@ -460,14 +452,21 @@
         top: -2px;
         right: -2px;
       }
+      .top-bar {
+        gap: 8px;
+        margin-bottom: 5px;
+      }
       .date-selector {
         gap: 6px;
-        margin-bottom: 4px;
       }
       select {
-        max-width: 115px;
+        max-width: 108px;
         font-size: 11px;
-        padding: 5px 10px;
+        padding: 5px 8px;
+      }
+      .today-btn-header {
+        padding: 5px 12px;
+        font-size: 11px;
       }
       .weekdays {
         gap: 2px;
@@ -500,12 +499,6 @@
       .arrow-container {
         margin-top: 4px;
       }
-      .floating-button {
-        bottom: 10px;
-        right: 10px;
-        padding: 7px 12px;
-        font-size: 11px;
-      }
       .settings-drawer {
         width: 94vw;
         max-width: 94vw;
@@ -514,7 +507,6 @@
       }
     }
 
-    /* 极窄屏优化 */
     @media (max-width: 380px) {
       .calendar {
         grid-auto-rows: minmax(58px, auto);
@@ -528,11 +520,10 @@
       .arrow {
         font-size: 18px;
       }
-    }
-
-    /* 确保日历高度不超过父容器，不会触发body滚动 */
-    .calendar-wrapper {
-      overflow: visible;
+      .today-btn-header {
+        padding: 4px 10px;
+        font-size: 10px;
+      }
     }
   </style>
 </head>
@@ -543,9 +534,13 @@
     <button class="settings-trigger" onclick="openSettingsDrawer()" title="排班设置">⚙️</button>
   </div>
 
-  <div class="date-selector">
-    <select id="yearSelect" aria-label="选择年份"></select>
-    <select id="monthSelect" aria-label="选择月份"></select>
+  <!-- 顶部区域：年份 + 月份选择 + 今日按钮融入一行 -->
+  <div class="top-bar">
+    <div class="date-selector">
+      <select id="yearSelect" aria-label="选择年份"></select>
+      <select id="monthSelect" aria-label="选择月份"></select>
+    </div>
+    <button class="today-btn-header" id="inlineTodayBtn" onclick="goToToday()">📍 今日</button>
   </div>
 
   <div class="calendar-wrapper">
@@ -563,7 +558,8 @@
   </div>
 </div>
 
-<button class="floating-button" onclick="goToToday()">📍 今天</button>
+<!-- 原浮动按钮隐藏，避免遮挡 -->
+<button class="legacy-floating-btn" style="display:none;"></button>
 
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeSettingsDrawer()"></div>
 <div class="settings-drawer" id="settingsDrawer">
@@ -759,7 +755,6 @@
 
     calendar.innerHTML = '';
     let date = 1;
-    // 固定6行布局（最多42格），保证不滚动完全展示
     for (let i = 0; i < 6; i++) {
       for (let j = 0; j < 7; j++) {
         const cell = document.createElement('div');
